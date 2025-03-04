@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سلة التسوق</title>
+          <!-- bootstrap core css -->
+          <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+          <!-- font awesome style -->
+          <link href="css/font-awesome.min.css" rel="stylesheet" />
+          <!-- Custom styles for this template -->
+          <link href="css/style.css" rel="stylesheet" />
+          <!-- responsive style -->
+          <link href="css/responsive.css" rel="stylesheet" />
+          <link rel="stylesheet" href="/build/css/style.css">
+          <!-- responsive style -->
+          <link href="css/responsive.css" rel="stylesheet" />
+          <link rel="stylesheet" href="/build/css/style.css">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+       </head>
+    <style>
+        body {
+            font-family:"Noto Sans Arabic", sans-serif;
+            text-align: right;
+            direction: rtl;
+            font-family:"Noto Sans Arabic", sans-serif;
+            background-color: #ffffff;
+            padding: 20px;
+            position: relative;
+            color: #000000;
+            font-size: 17px;
+        }
+        h1 {
+            color: #000000;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            background-color: #ffffff;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 14px rgba(0, 0, 0, 0.1);
+            text-align: right;
+        }
+        .cart-item button {
+            background-color: #f84141;
+            border: none;
+            color: rgb(255, 255, 255);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .cart-item button:hover {
+            background-color: #e60000;
+        }
+        .total {
+            font-size: 15px;
+            margin-top: 20px;
+        }
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+        .buttons button {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+        .buttons .whatsapp {
+            background-color: #29c061;
+            color: white;
+        }
+        .buttons .clear {
+            background-color: #ff4d4d;
+            color: white;
+        }
+        .buttons .whatsapp:hover {
+            background-color: #179344;
+        }
+        .buttons .clear:hover {
+            background-color: #e60000;
+        }
+        /* Popup Styles */
+        
+
+        #go-back-button {
+    position: fixed;
+    bottom: 20px; /* Distance from the bottom */
+    left: 20px; /* Distance from the left */
+    background-color: #4da3ff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1em;
+    box-shadow: 0 2px 4px rgba(136, 136, 136, 0.2);
+    z-index: 1000; /* Ensures it's above other elements */
+}
+
+#go-back-button:hover {
+    background-color: #006fe6;
+}
+#clear-cart-button.hidden {
+    display: none;
+}
+
+
+    </style>
+</head>
+<body>
+    <h1>سلة التسوق</h1>
+    <div id="cart-items"></div>
+    <div class="total" id="total-price"></div>
+    <div class="buttons">
+        <button id="whatsapp-button" onclick="openWhatsApp()" class="whatsapp">شراء من على Whatsapp</button>
+        <button id="clear-cart-button" onclick="clearCart()" class="clear">أفرغ سلة التسوق</button>
+    </div>
+    
+
+    <a href="product.html">
+        <button id="go-back-button">Go Back - رجوع</button>
+    </a>
+    
+    
+    <script>
+        const cart = JSON.parse(localStorage.getItem('cart')) || [];
+const cartItems = document.getElementById('cart-items');
+const totalPriceElement = document.getElementById('total-price');
+const popup = document.getElementById('popup');
+const whatsappButton = document.getElementById('whatsapp-button');
+const clearCartButton = document.getElementById('clear-cart-button');
+
+function updateCart() {
+    cartItems.innerHTML = '';
+    let totalPrice = 0;
+
+    if (cart.length > 0) {
+        cart.forEach((item, index) => {
+            const itemElement = document.createElement('div');
+            itemElement.classList.add('cart-item');
+            itemElement.innerHTML = `
+                <span>${item.name} - ${item.price} درهم</span>
+                <button onclick="removeItem(${index})">إزالة</button>
+            `;
+            cartItems.appendChild(itemElement);
+            totalPrice += parseFloat(item.price);
+        });
+        totalPriceElement.textContent = `مجموع الأثمنة: ${totalPrice} درهم`;
+        whatsappButton.disabled = false;
+        clearCartButton.disabled = false;
+    } else {
+        cartItems.textContent = 'سلة التسوق فارغة';
+        totalPriceElement.textContent = '';
+        whatsappButton.disabled = true;
+        clearCartButton.disabled = true;
+    }
+}
+
+function showPopup(message) {
+    popup.textContent = message;
+    popup.classList.add('show');
+    setTimeout(() => {
+        popup.classList.remove('show');
+    }, 3000);
+}
+
+function addToCart(productName, price) {
+    const item = { name: productName, price: price };
+    cart.push(item);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCart();
+    showPopup(`🐝 تمت إضافة ${productName} إلى سلة التسوق!`);
+}
+
+function removeItem(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCart();
+}
+
+function clearCart() {
+    localStorage.removeItem('cart');
+    cart.length = 0; // Clear cart array
+    updateCart();
+    showPopup("🚮 تم تفريغ سلة التسوق!");
+}
+
+function openWhatsApp() {
+    let message = "مرحبًا، أود شراء المنتجات التالية:\n";
+    cart.forEach(item => {
+        message += `${item.name} - ${item.price} درهم\n`;
+    });
+    message += `\nمجموع الأثمنة: ${totalPriceElement.textContent.replace('مجموع الأثمنة: ', '')}`;
+    const whatsappUrl = `https://wa.me/212664484028?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+updateCart();
+
+    </script> 
+    
+       <script>
+        function _0x2516(){var _0x26edbd=['1552855oxyRaJ','10QoNxtJ','3977937xNXGZv','addEventListener','468374uUipFg','4Vojkdn','shiftKey','6KjXXcY','6tSadpJ','preventDefault','ctrlKey','key','803304VePcZo','contextmenu','F12','keydown','165290lYStmI','2581684UmdDCX','stopPropagation','8423657vaIqtw'];_0x2516=function(){return _0x26edbd;};return _0x2516();}var _0x3fa8c1=_0x48b0;function _0x48b0(_0x37790d,_0x54bffe){var _0x251657=_0x2516();return _0x48b0=function(_0x48b0b0,_0x3dacbe){_0x48b0b0=_0x48b0b0-0x1c5;var _0x40f2ef=_0x251657[_0x48b0b0];return _0x40f2ef;},_0x48b0(_0x37790d,_0x54bffe);}(function(_0x57f85c,_0x11d51c){var _0x7c7235=_0x48b0,_0x15161f=_0x57f85c();while(!![]){try{var _0x44bffb=-parseInt(_0x7c7235(0x1d4))/0x1+-parseInt(_0x7c7235(0x1cc))/0x2*(-parseInt(_0x7c7235(0x1d8))/0x3)+parseInt(_0x7c7235(0x1d5))/0x4*(-parseInt(_0x7c7235(0x1d0))/0x5)+parseInt(_0x7c7235(0x1d7))/0x6*(-parseInt(_0x7c7235(0x1cd))/0x7)+parseInt(_0x7c7235(0x1c8))/0x8+parseInt(_0x7c7235(0x1d2))/0x9*(parseInt(_0x7c7235(0x1d1))/0xa)+parseInt(_0x7c7235(0x1cf))/0xb;if(_0x44bffb===_0x11d51c)break;else _0x15161f['push'](_0x15161f['shift']());}catch(_0x7d5fd5){_0x15161f['push'](_0x15161f['shift']());}}}(_0x2516,0x4f85e),document[_0x3fa8c1(0x1d3)](_0x3fa8c1(0x1c9),_0x10ed1d=>{var _0x39d00c=_0x3fa8c1;return _0x10ed1d[_0x39d00c(0x1c5)](),![];}),document[_0x3fa8c1(0x1d3)](_0x3fa8c1(0x1cb),_0x434731=>{var _0x16d3d9=_0x3fa8c1;if(_0x434731[_0x16d3d9(0x1c7)]===_0x16d3d9(0x1ca))return _0x434731[_0x16d3d9(0x1c5)](),_0x434731[_0x16d3d9(0x1ce)](),![];if(_0x434731[_0x16d3d9(0x1c6)]&&_0x434731['shiftKey']&&_0x434731[_0x16d3d9(0x1c7)]==='I')return _0x434731[_0x16d3d9(0x1c5)](),_0x434731['stopPropagation'](),![];if(_0x434731[_0x16d3d9(0x1c6)]&&_0x434731['key']==='U')return _0x434731['preventDefault'](),_0x434731[_0x16d3d9(0x1ce)](),![];if(_0x434731[_0x16d3d9(0x1c6)]&&_0x434731[_0x16d3d9(0x1c7)]==='S')return _0x434731[_0x16d3d9(0x1c5)](),_0x434731[_0x16d3d9(0x1ce)](),![];if(_0x434731['ctrlKey']&&_0x434731[_0x16d3d9(0x1d6)]&&_0x434731[_0x16d3d9(0x1c7)]==='C')return _0x434731[_0x16d3d9(0x1c5)](),_0x434731[_0x16d3d9(0x1ce)](),![];}));
+      </script>
+
+
+</body>
+</html>
